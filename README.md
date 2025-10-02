@@ -22,8 +22,11 @@
 > 💡 **为什么只用分享？** 为保证能读取完整的GPS信息，推荐使用分享功能。Android 13+的照片选择器会自动清除隐私信息。
 
 ## 📱 功能展示
-
+| - | -  |
+| --- | --- |
+| ![](https://github.com/user-attachments/assets/f11cbd4d-3178-4f00-b1ce-268e01e3751d) | ![](https://github.com/user-attachments/assets/82b93df5-a2e8-46e9-bcfb-5ea5e38b2232) |
  
+
 
 ## 📄 开源协议
 
@@ -49,4 +52,5 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+
 SOFTWARE.
