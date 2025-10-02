@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>照片位置查看器</title>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=1700798238bf5ff1d138946d98d1b108"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:active {
+            background: #e0e0e0;
+        }
+
+        #map-container {
+            display: none;
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 80px;
+            margin-right: 10px;
+        }
+
+        .info-value {
+            color: #333;
+            flex: 1;
+        }
+
+
+        .welcome-card {
+            text-align: center;
+        }
+
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-text {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .features {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .feature-item::before {
+            content: "✓";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📍 照片位置查看器</h1>
+            <p>查看照片拍摄位置，一键导航</p>
+        </div>
+
+        <div id="welcome-screen" class="card welcome-card">
+            <div class="welcome-icon">📸</div>
+            <div class="welcome-text">
+                <strong>📍 如何使用：</strong><br><br>
+                1. 打开相册，找到要查看的照片<br>
+                2. 点击"分享"按钮<br>
+                3. 选择"照片位置查看器"<br>
+                4. 自动显示拍摄位置和地图
+            </div>
+            
+            <div class="features" style="margin-top: 30px;">
+                <div class="feature-item">读取照片EXIF位置信息</div>
+                <div class="feature-item">在地图上标注拍摄位置</div>
+                <div class="feature-item">支持打开高德地图查看</div>
+                <div class="feature-item">显示拍摄时间和设备信息</div>
+            </div>
+            
+            <div style="margin-top: 25px; padding: 15px; background: #fff3cd; border-radius: 10px; font-size: 13px; color: #856404; line-height: 1.6;">
+                💡 <strong>提示：</strong>照片需在拍摄时开启GPS定位才能显示位置信息
+            </div>
+        </div>
+
+        <div id="map-container" class="card">
+            <div id="map"></div>
+            
+            <div class="info-section"> 
+                <div class="info-item">
+                    <span class="info-label">🌐 坐标</span>
+                    <span class="info-value" id="coordinates">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">📅 时间</span>
+                    <span class="info-value" id="datetime">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">📱 设备</span>
+                    <span class="info-value" id="device">-</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="openInAMap()">
+                🗺️ 在高德地图中查看
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let map = null;
+        let marker = null;
+        let currentLocation = {
+            latitude: 0,
+            longitude: 0,
+            address: '',
+            datetime: '',
+            device: ''
+        };
+
+        // 初始化地图（延迟初始化）
+        function initMap() {
+            if (!map) {
+                map = new AMap.Map('map', {
+                    zoom: 15,
+                    center: [116.397428, 39.90923],
+                    mapStyle: 'amap://styles/normal'
+                });
+            }
+        }
+
+        // 显示位置信息
+        function showLocation(data) {
+            try {
+                console.log('接收到位置数据:', data);
+                
+                currentLocation.latitude = data.latitude;
+                currentLocation.longitude = data.longitude;
+                currentLocation.datetime = data.datetime || '未知时间';
+                currentLocation.device = data.device || '未知设备';
+
+                // 显示地图容器
+                document.getElementById('welcome-screen').style.display = 'none';
+                document.getElementById('map-container').style.display = 'block';
+
+                // 初始化地图
+                initMap();
+
+                // 设置地图中心
+                const center = [data.longitude, data.latitude];
+                map.setCenter(center);
+                map.setZoom(15);
+
+                // 移除旧标记
+                if (marker) {
+                    map.remove(marker);
+                }
+
+                // 添加新标记
+                marker = new AMap.Marker({
+                    position: center,
+                    title: '照片拍摄位置',
+                    icon: new AMap.Icon({
+                        image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
+                        size: new AMap.Size(25, 34),
+                        imageSize: new AMap.Size(25, 34)
+                    })
+                });
+                map.add(marker);
+
+                // 更新信息显示
+                document.getElementById('coordinates').textContent = 
+                    `${data.latitude.toFixed(6)}, ${data.longitude.toFixed(6)}`;
+                document.getElementById('datetime').textContent = currentLocation.datetime;
+                document.getElementById('device').textContent = currentLocation.device;
+                
+                
+
+            } catch (e) {
+                console.error('显示位置失败:', e);
+                alert('显示位置失败: ' + e.message);
+            }
+        }
+
+        // 在高德地图中查看
+        function openInAMap() {
+            if (typeof Android !== 'undefined') {
+                const name = currentLocation.address || '照片位置';
+                Android.openInAMap(
+                    currentLocation.latitude.toString(),
+                    currentLocation.longitude.toString(),
+                    name
+                );
+            } else {
+                alert('请在Android应用中使用此功能');
+            }
+        }
+
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成');
+        });
+    </script>
+</body>
+</html>
